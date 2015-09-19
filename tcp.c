@@ -9,7 +9,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 #include <unistd.h>
+#include <limits.h>
 #include <libgen.h>
 #include <fcntl.h>           /* Definition of AT_* constants */
 
@@ -19,6 +21,11 @@ int main(int argc, char** argv)
 	struct stat st_source;
 	struct stat st_target;
 	char *buffer;
+	
+	char *source_absolute_path;
+	char *target_absolute_path;
+
+	char buf_realpath[PATH_MAX];
 
 	if(argc != 3)
 	{
@@ -48,6 +55,20 @@ int main(int argc, char** argv)
 	}
 	if((target_fd=open(argv[2], O_DIRECTORY)) >= 0)
 	{
+		if((source_absolute_path=realpath(argv[1],buf_realpath)) == NULL)
+		{
+			perror("couldn't resolve working directory\n");
+			exit(EXIT_FAILURE);
+		}
+		if((target_absolute_path=realpath(argv[2],buf_realpath)) == NULL)
+		{
+			perror("couldn't resolve target directory\n");
+			exit(EXIT_FAILURE);
+		}
+		if(strcmp(source_absolute_path,target_absolute_path) == 0)
+		{
+			exit(EXIT_SUCCESS);
+		}
 		if((target_fd = openat(target_fd, basename(argv[1]),
 			O_WRONLY | O_CREAT | O_TRUNC, st_source.st_mode)) == -1)
 		{
