@@ -25,7 +25,8 @@ int main(int argc, char** argv)
 	char *source_absolute_path;
 	char *target_absolute_path;
 
-	char buf_realpath[PATH_MAX];
+	char buf_realpath_src[PATH_MAX];
+	char buf_realpath_tar[PATH_MAX];
 
 	if(argc != 3)
 	{
@@ -55,24 +56,24 @@ int main(int argc, char** argv)
 	}
 	if((target_fd=open(argv[2], O_DIRECTORY)) >= 0)
 	{
-		if((source_absolute_path=realpath(argv[1],buf_realpath)) == NULL)
+		if((source_absolute_path=realpath(argv[1],buf_realpath_src)) == NULL)
 		{
 			perror("couldn't resolve working directory\n");
 			exit(EXIT_FAILURE);
 		}
-		if((target_absolute_path=realpath(argv[2],buf_realpath)) == NULL)
+		if((target_absolute_path=realpath(argv[2],buf_realpath_tar)) == NULL)
 		{
 			perror("couldn't resolve target directory\n");
 			exit(EXIT_FAILURE);
 		}
-		if(strcmp(source_absolute_path,target_absolute_path) == 0)
+		if(strcmp(dirname(source_absolute_path),target_absolute_path) == 0)
 		{
 			exit(EXIT_SUCCESS);
 		}
 		if((target_fd = openat(target_fd, basename(argv[1]),
 			O_WRONLY | O_CREAT | O_TRUNC, st_source.st_mode)) == -1)
 		{
-			perror("could not a target directory\n");
+			perror("could not open target directory\n");
 			exit(EXIT_FAILURE);
 		}
 	}
