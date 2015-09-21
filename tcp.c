@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 	if((stat(argv[2],&st_target) == -1) ||
 		(st_source.st_ino == st_target.st_ino))
 	{
-		perror("target file is the same as source file");
+		perror("target file not found or is equivalent to source file");
 		exit(EXIT_FAILURE);
 	}
 	if((source_fd = open(argv[1], O_RDONLY)) == -1)
